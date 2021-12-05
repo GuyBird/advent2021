@@ -1,7 +1,6 @@
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 my $filename = 'day3_input';
 
