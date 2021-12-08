@@ -14,7 +14,7 @@ while(<FH>){
             $running_total++ if ($digit_len == 2 or $digit_len == 4 or $digit_len == 3 or $digit_len == 7);
         }
     } else {
-        print "[ERROR] password REGEX did not match\n";
+        print "[ERROR] input REGEX did not match\n";
     }
 }
 close(FH);
