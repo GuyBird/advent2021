@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 use strict;
 use warnings;
 use List::MoreUtils qw( minmax );
@@ -10,7 +11,7 @@ for my $x (0 .. $max_x) {
     $map[$x] = [(0) x ($max_y + 1)];
 }
 
-my $filename = 'day5_input';
+my $filename = 'input';
 open(FH, '<', $filename) or die $!;
 
 while(<FH>){
@@ -58,7 +59,7 @@ while(<FH>){
 }
 close(FH);
 
-printMap(\@map,$max_x,$max_y);
+#printMap(\@map,$max_x,$max_y);
 findAnswer(\@map,$max_x,$max_y);
 
 sub printMap {

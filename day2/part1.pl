@@ -1,9 +1,8 @@
 #!/usr/bin/perl
-
 use strict;
 use warnings;
 
-my $filename = 'day2_input';
+my $filename = 'input';
 open(FH, '<', $filename) or die $!;
 
 my $depth = 0;
@@ -14,7 +13,7 @@ while(<FH>){
         $depth = $depth + $2 if ($1 eq "down");
         $depth = $depth - $2 if ($1 eq "up");
     } else {
-        print "[ERROR] password REGEX did not match\n";
+        print "[ERROR] input REGEX did not match\n";
     }
 }
 

@@ -1,9 +1,10 @@
+#!/usr/bin/perl
 use strict;
 use warnings;
 
-my $input_days = 256;
+my $input_days = 80;
 
-my $filename = 'day6_input';
+my $filename = 'input';
 open(FH, '<', $filename) or die $!;
 my @fishes = split ',',<FH>;
 close(FH);

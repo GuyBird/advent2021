@@ -1,12 +1,10 @@
 #!/usr/bin/perl
-
 use strict;
 use warnings;
-use Data::Dumper;
 
 my $current_depth = 20000;
 my $increase_count = 0;
-my $filename = 'day1_input';
+my $filename = 'input';
 
 open(FH, '<', $filename) or die $!;
 
