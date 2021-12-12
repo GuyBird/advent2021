@@ -1,8 +1,8 @@
-
+#!/usr/bin/perl
 use strict;
 use warnings;
 
-my $filename = 'day3_input';
+my $filename = 'input';
 
 open(FH, '<', $filename) or die $!;
 my @numbers = <FH>;
