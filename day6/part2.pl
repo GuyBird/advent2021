@@ -10,15 +10,11 @@ open(FH, '<', $filename) or die $!;
 my @inputs = split ',',<FH>;
 close(FH);
 
-for my $input (@inputs) {
-    $fishes[$input]++;
-}
+map {$fishes[$_]++} @inputs;
 
 for my $day (1 .. $input_days) {
     my $new_fish = $fishes[0];
-    for my $age (0 .. scalar @fishes - 2){
-        $fishes[$age] =  ($fishes[$age +  1]);
-    }
+    map {$fishes[$_] =  ($fishes[$_ +  1]) } (0 .. scalar @fishes - 2);
     $fishes[8] = $new_fish;
     $fishes[6] += $new_fish;
 }
@@ -30,8 +26,6 @@ print $answer;
 sub showState {
     my ($fishes, $day) = @_;
     print "After $day day: ";
-    for my $fish (@$fishes) {
-        print "$fish, ";
-    }
+    map { print "$_, " } @$fishes;
     print "\n";
 }

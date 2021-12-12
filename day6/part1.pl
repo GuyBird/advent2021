@@ -3,35 +3,29 @@ use strict;
 use warnings;
 
 my $input_days = 80;
+my @fishes = (0) x 9;
 
 my $filename = 'input';
 open(FH, '<', $filename) or die $!;
-my @fishes = split ',',<FH>;
+my @inputs = split ',',<FH>;
 close(FH);
 
+map {$fishes[$_]++} @inputs;
 
 for my $day (1 .. $input_days) {
-    my $new_fish = 0;
-    for my $fish (@fishes) {
-        $fish--;
-        if ($fish == -1) {
-            $fish = 6;
-            $new_fish++;
-        }
-    }
-    foreach(1 .. $new_fish) {
-        push @fishes, 8;
-    }
-    #showState(\@fishes, $day);
+    my $new_fish = $fishes[0];
+    map {$fishes[$_] =  ($fishes[$_ +  1]) } (0 .. scalar @fishes - 2);
+    $fishes[8] = $new_fish;
+    $fishes[6] += $new_fish;
 }
 
-print scalar @fishes;
+my $answer;
+foreach(@fishes) { $answer += $_ }
+print $answer;
 
 sub showState {
     my ($fishes, $day) = @_;
     print "After $day day: ";
-    for my $fish (@$fishes) {
-        print "$fish, ";
-    }
+    map { print "$_, " } @$fishes;
     print "\n";
 }
