@@ -1,14 +1,8 @@
 use strict;
 use warnings;
 
-my $filename = 'input';
-my @paper;
-my $max_x = 0;
-my $max_y = 0;
-
-open(FH, '<', $filename) or die $!;
-my @input = <FH>;
-close(FH);
+my ($max_y, $max_x, @paper);
+my @input = <>;
 
 for(@input){
     if ($_ =~/fold along (\w)=(\d+)/) {
@@ -52,7 +46,7 @@ sub showState {
     my $count;
     for my $row (0 .. $max_y) {
         for (0 .. $max_x) {
-            $paper->[$row]->[$_] ? print "#" : print "." if ($show_map);
+            print $paper->[$row]->[$_] ? "#" : "." if ($show_map);
             $count++ if ($paper->[$row]->[$_]);
         }
         print "\n" if ($show_map);
@@ -63,7 +57,7 @@ sub showState {
 sub showFullpaper {
     my ($paper) = @_;
     for (@{$paper}) {
-        map { $_ ? print "#" : print "." } @{$_};
+        map { print $_ ? "#" : "." } @{$_};
         print "\n";
     }
 }
