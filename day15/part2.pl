@@ -3,8 +3,35 @@ use warnings;
 
 my (@distances, @distance, $max_size, @frontier);
 
-while (<>) {
-    push @distances, [split //, $1] if ($_ =~/(\d+)/);
+while (<>) {       
+    my @input_row = split //, $1 if ($_ =~/(\d+)/);
+    my @row = ();
+    for (1 .. 5) {
+        push @row,  @input_row;
+        for ( 0 .. @input_row - 1) {
+            $input_row[$_]++;
+            $input_row[$_] = 1 if ($input_row[$_] == 10);
+        }
+    }
+
+    push @distances, [@row];
+}
+
+my $initial_size = scalar @distances - 1;
+
+for (1 .. 4) {
+    my $increase = $_;
+    for my $i (0 .. $initial_size) {
+        my @row = ();
+        for ( 0 .. (($initial_size + 1) * 5) -1 ) {
+            $row[$_] = $distances[$i][$_] + $increase;
+            $row[$_] = 1 if ($row[$_] == 10);
+            $row[$_] = 2 if ($row[$_] == 11);
+            $row[$_] = 3 if ($row[$_] == 12);
+            $row[$_] = 4 if ($row[$_] == 13);
+        }
+        push @distances, [@row];
+    }
 }
 
 $max_size = scalar @distances - 1;
