@@ -31,11 +31,12 @@ while (1) {
 
 sub take_turn {
     my ($die_val, $position) = @_;
-    my $value = 0;
+    my $value;
     for (1 .. 3) {
         $die_val = roll_determ_die($die_val);
         $value += $die_val;
     }
+    $dice_rolls += 3;
     my $new_pos = ($position + $value) % 10;
     $new_pos = 10 if (!$new_pos);
 
@@ -45,7 +46,6 @@ sub take_turn {
 sub roll_determ_die {
     my ($die_val) = @_;
     $die_val += 1;
-    $die_val = 1 if ($die_val == 101);
-    $dice_rolls++;
+    $die_val -= 100 if ($die_val == 101);
     return $die_val;
 }
