@@ -1,111 +1,79 @@
 use strict;
 use warnings;
 
-# In major need of a refator - thinking of packets as trees might be a superior approach here
-
 my @input_hex = split //, <>;
 my $packet;
-my $version_number;
+my $global_version_count = 0;
 
 map {$packet .= sprintf("%04b", hex($_))} (@input_hex);
+my @packet = split //, $packet;
 
-my @packets = split //, $packet;
-handlePacket(\@packets, 0, 12);
+my $value = parse_packet(\@packet);
+print $value;
+print $global_version_count;
 
-print $version_number;
+sub parse_packet {
+    my ($packet) = @_;
 
-sub handleSubPacket {
-    my ($packet, $head, $packet_end_length) = @_;
-
-    my ($packet_ver, $packet_type);
-    ($packet_ver, $head) = getThreeBit($packet, $head);
-    ($packet_type, $head) = getThreeBit($packet, $head);
-    $version_number += $packet_ver;
-
-    if ($packet_type != 4) {
-        $head = handle_operation_packet($packet,$head);
-    } else {
-        $head = handle_literal_value_packet($packet, $head);
-        $head = handleSubPacket($packet, $head, $packet_end_length) if ($head < $packet_end_length);
+    my $v = read_bits($packet, 3);
+    $global_version_count += $v;
+    my $t = read_bits($packet, 3);
+    
+    if ($t == 4) {
+        return parse_literal_value_packet($packet);
     }
-    return $head;
+    return parse_opetations_packet($packet, $t);
 }
 
-sub handlePacket {
-    my ($packet, $head, $remaining_packets) = @_;
-    while ($remaining_packets) {
+sub parse_opetations_packet {
+    my ($packet, $t) = @_;
 
-        my ($packet_ver, $packet_type);
-        ($packet_ver, $head) = getThreeBit($packet, $head);
-        ($packet_type, $head) = getThreeBit($packet, $head);
-        $version_number += $packet_ver;
+    my $l = read_bits($packet, 1);
+    my @subpackets;
 
-        if ($packet_type != 4) {
-            $head = handle_operation_packet($packet,$head);
-        } else {
-            $head = handle_literal_value_packet($packet, $head);
+    if ($l) {
+        my $sub_packets = read_bits($packet, 11);
+        for (1 .. $sub_packets) {
+            push(@subpackets, parse_packet($packet));
         }
-        $remaining_packets--;
+    } else {
+        my $sub_packet_bits = read_bits($packet, 15);
+        my $end_packet_length = scalar @{$packet} - $sub_packet_bits;
+        while (scalar @{$packet} >  $end_packet_length) {
+            push(@subpackets, parse_packet($packet));
+        }
     }
-    return $head;
+}
+
+sub parse_literal_value_packet {
+    my ($packet) = @_;
+    my $reading = 1;
+    my $literal_number = "";
+
+    while ($reading) {
+        $reading = read_bits($packet, 1); 
+        for (1 .. 4) {
+            # read one at a time so we don't convert to decimal too early
+            $literal_number .= read_bits($packet, 1); 
+        }
+    }
+    return eval("0b" . $literal_number);
+}
+
+sub read_bits {
+    my ($packet ,$bits) = @_;
+
+    my $read_bits = "";
+    for (1 .. $bits) {
+        $read_bits .= shift @{$packet};
+    }
+    return eval("0b" . $read_bits);
 }
 
 sub printPacket {
-    my ($head, $packet, $packet_end_length) = @_;
-    print "$head, $packet_end_length:  ";
-    for ($head .. $packet_end_length) {
-        print $packet->[$_];
+    my ($packet) = @_;
+    foreach my $bit (@{$packet}) {
+        print $bit;
     }
     print "\n";
-}
-
-sub handle_operation_packet {
-    my ($packet, $head) = @_;
-
-    my $length_type = $packet->[$head];
-    $head += 1;
-
-    my $sub_length;
-    ($sub_length, $head) = get_subpacket_length($packet, $head, $length_type);
-
-    if (!$length_type) {
-        $head = handleSubPacket($packet, $head, $head + $sub_length);
-    } else {
-        $head = handlePacket($packet, $head, $sub_length);
-    }
-    return $head;
-}
-
-sub handle_literal_value_packet {
-    my ($packet, $head) = @_;
-    my $literal_number = "";
-    my $reading = 1;
-    while ($reading) {
-        $reading = $packet->[$head];
-        $literal_number .= $packet->[$head+1] . $packet->[$head+2] . $packet->[$head+3] . $packet->[$head+4];
-        $head += 5;
-    }
-    return $head;
-}
-
-sub get_subpacket_length {
-    my ($packet, $head, $length_type) = @_;
-    my $length_bin;
-    if ($length_type) {
-        for ($head .. $head + 10) {
-            $length_bin .= $packet->[$_];
-        }
-        $head += 11;
-    } else {
-        for ($head .. $head + 14) {
-            $length_bin .= $packet->[$_];
-        }
-        $head += 15;
-    }
-    return eval("0b$length_bin"), $head;
-}
-
-sub getThreeBit {
-    my ($packet, $head) = @_;
-    return eval("0b" . $packet->[$head] . $packet->[$head + 1] . $packet->[$head + 2]), ($head + 3); 
 }
